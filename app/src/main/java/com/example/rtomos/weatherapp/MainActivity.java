@@ -2,6 +2,9 @@ package com.example.rtomos.weatherapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,6 +12,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class MainActivity extends ActionBarActivity implements ForecastFragment.Callback {
@@ -18,6 +28,10 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
     private boolean mTwoPane;
     private String mLocation;
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private GoogleMap map;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +79,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
     }
 
     private void openPreferredLocationInMap() {
-        String location = Utility.getPreferredLocation(this);
+        /*String location = Utility.getPreferredLocation(this);
 
         Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
                 .appendQueryParameter("q", location)
@@ -78,6 +92,47 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             startActivity(intent);
         } else {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
+        }*/
+        MapFragment mapFrag = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        String provider = LocationManager.NETWORK_PROVIDER;
+        locationManager.requestLocationUpdates(provider, 3000, 100, new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d(TAG, "location changed: " + location.toString());
+                updateMap(location);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d(TAG, "status changed");
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d(TAG, "provider enabled");
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d(TAG, "provider disabled");
+            }
+        });
+
+    }
+    private void updateMap(Location location) {
+        if (map != null) {
+            LatLng clujLatLong = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate center =
+                    CameraUpdateFactory.newLatLng(clujLatLong);
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+            map.moveCamera(center);
+            map.animateCamera(zoom);
+            MarkerOptions mo = new MarkerOptions();
+            mo.alpha(.5f);
+            mo.position(clujLatLong);
+            map.addMarker(mo);
         }
     }
 

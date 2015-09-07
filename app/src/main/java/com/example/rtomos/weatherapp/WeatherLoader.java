@@ -1,11 +1,21 @@
 package com.example.rtomos.weatherapp;
 
+import android.app.Activity;
+import android.app.DownloadManager;
+import android.app.Notification;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.rtomos.weatherapp.objects.WeatherInfo;
 import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,7 +28,7 @@ import java.text.MessageFormat;
 /**
  * Created by rtomos on 8/24/2015.
  */
-public class WeatherLoader extends AsyncTask<String, Void, WeatherInfo> {
+public class WeatherLoader /*extends AsyncTask<String, Void, WeatherInfo>*/ {
     private static String WEATHER_URL = "http://api.openweathermap.org/data/2.5/weather?q={0}&units=metric";
     private static final String TAG
             = "WeatherLoader";
@@ -29,11 +39,33 @@ public class WeatherLoader extends AsyncTask<String, Void, WeatherInfo> {
         this.resultView = resultView;
     }
 
-    @Override
+
+    //TODO Volley request
+    /*@Override
     protected WeatherInfo doInBackground(String... strings) {
 
-        WeatherInfo result = null;
-        HttpURLConnection httpURLConnection = null;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String query = "http://api.openweathermap.org/data/2.5/weather?q={0}&units=metric";
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, query, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                JSONObject object = new Gson().fromJson(jsonObject.toString(), JSONObject.class);
+            }, new Response.ErrorListener() {
+                @Override
+                        public void onErrorResponse(VolleyError volleyError){
+                    if (volleyError.networkResponse == null)
+                        Crouton.makeText(((Activity) mContext), mContext.getResources().getString(R.string.message_no_internet), Notification.Style.ALERT).show();
+                    else
+                        Crouton.makeText(((Activity) mContext), mContext.getResources().getString(R.string.message_error), Notification.Style.ALERT).show();
+
+                }
+        });
+            queue.add(stringRequest);
+
+        WeatherInfo result = null;*/
+
+        //TODO the old http request
+        /*HttpURLConnection httpURLConnection = null;
         InputStream inputStream = null;
         try {
             URL url = new URL(MessageFormat.format(WEATHER_URL, URLEncoder.encode(strings[0], "UTF-8")));
@@ -80,11 +112,11 @@ public class WeatherLoader extends AsyncTask<String, Void, WeatherInfo> {
             }
         }
         return result;
-    }
+    }*/
 
-    @Override
+    /*@Override
     protected void onPostExecute(WeatherInfo weatherInfo) {
         resultView.setText(weatherInfo.toString());
-    }
+    }*/
 }
 
